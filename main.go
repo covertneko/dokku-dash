@@ -35,7 +35,7 @@ func Send(req *http.Request) (response *http.Response, err error) {
 	return
 }
 
-func main() {
+func Index(w http.ResponseWriter, req *http.Request)  {
 	req, err := http.NewRequest("GET", "unix:///tmp/dokku-api.sock/", nil)
 	if err != nil {
 		log.Fatal("Could not construct HTTP request: ", err)
@@ -53,5 +53,10 @@ func main() {
 	var contents []byte
 	resp.Body.Read(contents)
 
-	fmt.Println(string(contents))
+	fmt.Fprintf(w, string(contents))
+}
+
+func main() {
+	http.HandleFunc("/", Index)
+	http.ListenAndServe(":80", nil)
 }
