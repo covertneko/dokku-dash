@@ -4,6 +4,7 @@ import (
 	"log"
 	"fmt"
 	"path"
+	"os"
 	"net/http"
 )
 
@@ -58,5 +59,5 @@ func Index(w http.ResponseWriter, req *http.Request)  {
 
 func main() {
 	http.HandleFunc("/", Index)
-	http.ListenAndServe(":80", nil)
+	log.Fatal(http.ListenAndServe(":" + os.Getenv("PORT"), nil))
 }
