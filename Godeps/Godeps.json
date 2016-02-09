@@ -1,0 +1,5 @@
+{
+	"ImportPath": "github.com/nikelmwann/dokku-dash",
+	"GoVersion": "go1.5",
+	"Deps": []
+}
