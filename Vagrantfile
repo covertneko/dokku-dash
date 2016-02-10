@@ -3,7 +3,7 @@
 
 BOX_NAME = ENV['BOX_NAME'] || 'trusty'
 BOX_URI = ENV['BOX_URI'] || 'https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box'
-DOKKU_DOMAIN = ENV['DOKKU_DOMAIN'] || 'dokku-dash.local'
+DOKKU_DOMAIN = ENV['DOKKU_DOMAIN'] || 'dokku-dash-vm.local'
 DOKKU_IP = ENV['DOKKU_IP'] || '10.0.0.4'
 # User's public key to administer Dokku
 DOKKU_LOCAL_KEY_FILE = ENV['DOKKU_LOCAL_KEY_FILE'] || "#{ENV['HOME']}/.ssh/id_rsa.pub"
@@ -59,7 +59,7 @@ Vagrant.configure(2) do |config|
         # - skip key file check (will add manually after installation)
       debconf-set-selections <<< "
         dokku dokku/web_config boolean false
-        dokku dokku/vhost_enable boolean true
+        dokku dokku/vhost_enable boolean false
         dokku dokku/hostname string #{DOKKU_DOMAIN}
         dokku dokku/skip_key_file boolean true
         dokku dokku/key_file string /root/.ssh/id_rsa.pub"
@@ -92,7 +92,7 @@ Vagrant.configure(2) do |config|
     # set GOPATH/GOBIN and add GOBIN to path
     mkdir -p #{GUEST_GOPATH}
     echo "export GOPATH=#{GUEST_GOPATH}" >> ~/.profile
-    echo "export GOBIN=$GOPATH/bin" >> ~/.profile
+    echo 'export GOBIN=$GOPATH/bin' >> ~/.profile
     echo 'PATH="$GOBIN:$PATH"' >> ~/.profile
 
     # mark installation as complete

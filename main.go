@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path"
 	"os"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -36,8 +37,8 @@ func Send(req *http.Request) (response *http.Response, err error) {
 	return
 }
 
-func Index(w http.ResponseWriter, req *http.Request)  {
-	req, err := http.NewRequest("GET", "unix:///tmp/dokku-api.sock/", nil)
+func Index(w http.ResponseWriter, req *http.Request) {
+	req, err := http.NewRequest("GET", "unix:///tmp/dokku-api/api.sock/", nil)
 	if err != nil {
 		log.Fatal("Could not construct HTTP request: ", err)
 		return
@@ -51,8 +52,13 @@ func Index(w http.ResponseWriter, req *http.Request)  {
 
 	defer resp.Body.Close()
 
-	var contents []byte
-	resp.Body.Read(contents)
+	contents, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal("Error reading HTTP response body: ", err)
+		return
+	}
+
+	fmt.Printf("Response body: %q\n", string(contents))
 
 	fmt.Fprintf(w, string(contents))
 }
