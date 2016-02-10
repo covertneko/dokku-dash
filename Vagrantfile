@@ -59,7 +59,7 @@ Vagrant.configure(2) do |config|
         # - skip key file check (will add manually after installation)
       debconf-set-selections <<< "
         dokku dokku/web_config boolean false
-        dokku dokku/vhost_enable boolean false
+        dokku dokku/vhost_enable boolean true
         dokku dokku/hostname string #{DOKKU_DOMAIN}
         dokku dokku/skip_key_file boolean true
         dokku dokku/key_file string /root/.ssh/id_rsa.pub"
@@ -122,5 +122,26 @@ Vagrant.configure(2) do |config|
       go get
       go install
     fi
+  SHELL
+
+  # Install supervisor and configuration files
+  config.vm.provision :shell, inline: <<-SHELL
+    echo "Installing supervisor..."
+    apt-get -qq -y install supervisor
+
+    echo "Installing configuration files..."
+    # Copy files from install/ to appropriate directories
+    for f in `find /vagrant/install -type f`; do
+      dest=`sed "s|/vagrant/install||g" <(echo $f)`
+      destdir=$(dirname $dest)
+
+      # Create directory if it doesn't exist
+      test -d $destdir || mkdir -p $destdir
+      # Copy file
+      cp --preserve=mode $f $dest
+    done
+
+    supervisorctl reread
+    supervisorctl update
   SHELL
 end
