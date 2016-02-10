@@ -38,7 +38,7 @@ func Send(req *http.Request) (response *http.Response, err error) {
 }
 
 func Index(w http.ResponseWriter, req *http.Request) {
-	req, err := http.NewRequest("GET", "unix:///tmp/dokku-api/api.sock/", nil)
+	req, err := http.NewRequest("GET", os.Getenv("DOKKU_API_SOCKET"), nil)
 	if err != nil {
 		log.Fatal("Could not construct HTTP request: ", err)
 		return
