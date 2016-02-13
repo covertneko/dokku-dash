@@ -6,3 +6,6 @@ bootstrap:
 
 deploy:
 	@git push dokku master
+
+updateapi:
+	@vagrant ssh -c 'cd $$GOPATH/src/github.com/nikelmwann/dokku-api && go install && sudo supervisorctl restart dokku-api'

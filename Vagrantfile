@@ -17,6 +17,7 @@ Vagrant.configure(2) do |config|
   config.vm.network :forwarded_port, guest: 80, host: 8080
   config.vm.hostname = "#{DOKKU_DOMAIN}"
   config.vm.network :private_network, ip: DOKKU_IP
+  config.vm.synced_folder "#{ENV['GOPATH']}/src/github.com/nikelmwann/dokku-api", "#{GUEST_GOPATH}/src/github.com/nikelmwann/dokku-api"
 
   config.vm.provider 'virtualbox' do |vb|
     vb.customize ['modifyvm', :id, '--natdnshostresolver1', 'on']
