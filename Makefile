@@ -8,4 +8,4 @@ deploy:
 	@git push dokku master
 
 updateapi:
-	@vagrant ssh -c 'cd $$GOPATH/src/github.com/nikelmwann/dokku-api && go install && sudo supervisorctl restart dokku-api'
+	@vagrant ssh -c 'cd $$GOPATH/src/github.com/nikelmwann/dokku-api && go get && go install && sudo supervisorctl restart dokku-api'
