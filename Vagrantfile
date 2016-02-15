@@ -20,7 +20,11 @@ Vagrant.configure(2) do |config|
   config.vm.synced_folder "#{ENV['GOPATH']}/src/github.com/nikelmwann/dokku-api", "#{GUEST_GOPATH}/src/github.com/nikelmwann/dokku-api"
 
   config.vm.provider 'virtualbox' do |vb|
-    vb.customize ['modifyvm', :id, '--natdnshostresolver1', 'on']
+    vb.customize [
+      'modifyvm', :id,
+      '--natdnshostresolver1', 'on',
+      '--memory', '1024'
+    ]
   end
 
   # Install dokku
@@ -95,6 +99,16 @@ Vagrant.configure(2) do |config|
     echo "export GOPATH=#{GUEST_GOPATH}" >> ~/.profile
     echo 'export GOBIN=$GOPATH/bin' >> ~/.profile
     echo 'PATH="$GOBIN:$PATH"' >> ~/.profile
+
+    # install godeb to get newer version of go
+    go get launchpad.net/godeb
+
+    echo "Updating Go..."
+    # remove old go installation since it will cause conflicts
+    sudo apt-get remove -qq -y golang
+    sudo apt-get autoremove -qq -y
+    # install new go with godeb
+    godeb install 1.5.3
 
     # mark installation as complete
     touch ~/.GO_INSTALLED
