@@ -99,6 +99,10 @@ Vagrant.configure(2) do |config|
     # don't set gopath in profile more than once
     if [[ -e ~/.GOPATH_SET ]]; then
       mkdir -p #{GUEST_GOPATH}
+      # ensure permissions on GOPATH are correct
+      # syncing the dokku-api folder results in ~/.golang being
+      # created as root.
+      sudo chown vagrant:vagrant -R #{GUEST_GOPATH}
       echo "export GOPATH=#{GUEST_GOPATH}" >> ~/.profile
       echo 'export GOBIN=$GOPATH/bin' >> ~/.profile
       echo 'PATH="$GOBIN:$PATH"' >> ~/.profile
