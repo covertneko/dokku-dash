@@ -90,18 +90,26 @@ Vagrant.configure(2) do |config|
     [[ -e ~/.GO_INSTALLED ]] && exit 0
 
     set -eo pipefail
+    export DEBIAN_FRONTEND=noninteractive
 
     echo "Installing Go..."
-    sudo apt-get install -qq -y golang
+    sudo apt-get install -qq -y golang bzr
 
-    # set GOPATH/GOBIN and add GOBIN to path
-    mkdir -p #{GUEST_GOPATH}
-    echo "export GOPATH=#{GUEST_GOPATH}" >> ~/.profile
-    echo 'export GOBIN=$GOPATH/bin' >> ~/.profile
-    echo 'PATH="$GOBIN:$PATH"' >> ~/.profile
+    # set GOPATH/GOBIN and add GOBIN to path and save to .profile
+    # don't set gopath in profile more than once
+    if [[ -e ~/.GOPATH_SET ]]; then
+      mkdir -p #{GUEST_GOPATH}
+      echo "export GOPATH=#{GUEST_GOPATH}" >> ~/.profile
+      echo 'export GOBIN=$GOPATH/bin' >> ~/.profile
+      echo 'PATH="$GOBIN:$PATH"' >> ~/.profile
+      touch ~/.GOPATH_SET
+    fi
+    export GOPATH=#{GUEST_GOPATH}
+    export GOBIN=$GOPATH/bin
+    export PATH=$GOBIN:$PATH
 
     # install godeb to get newer version of go
-    go get launchpad.net/godeb
+    go get gopkg.in/niemeyer/godeb.v1/cmd/godeb
 
     echo "Updating Go..."
     # remove old go installation since it will cause conflicts
@@ -114,29 +122,10 @@ Vagrant.configure(2) do |config|
     touch ~/.GO_INSTALLED
   SHELL
 
-  # Install or update dokku-api (dev branch for now)
-  config.vm.provision :shell, privileged: false, inline: <<-SHELL
-    dir=$GOPATH/github.com/nikelmwann
-    mkdir -p $dir
-
-    cd $dir
-
-    # pull if repo is already cloned
-    if [[ -d dokku-api ]]; then
-      echo "Updating dokku-api..."
-      cd dokku-api
-      git pull
-      go get
-      go install
-    else
-      # otherwise clone dokku-api
-      echo "Installing dokku-api..."
-      git clone https://github.com/nikelmwann/dokku-api.git
-      cd dokku-api
-      git checkout develop
-      go get
-      go install
-    fi
+  config.vm.provision :shell, privileged:false, inline: <<-SHELL
+    # install dokku-api from shared folder
+    cd $GOPATH/src/github.com/nikelmwann/dokku-api
+    go install
   SHELL
 
   # Install supervisor and configuration files
