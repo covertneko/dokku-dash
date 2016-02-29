@@ -60,6 +60,11 @@ func Index(w http.ResponseWriter, req *http.Request) {
 
 	fmt.Printf("Response body: %q\n", string(contents))
 
+	if resp.StatusCode == http.StatusNotFound {
+		fmt.Fprintf(w, resp.Status)
+		return
+	}
+
 	fmt.Fprintf(w, string(contents))
 }
 

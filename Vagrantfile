@@ -86,18 +86,9 @@ Vagrant.configure(2) do |config|
 
   # Install golang and dependencies
   config.vm.provision :shell, privileged: false, inline: <<-SHELL
-    # don't reinstall
-    [[ -e ~/.GO_INSTALLED ]] && exit 0
-
-    set -eo pipefail
-    export DEBIAN_FRONTEND=noninteractive
-
-    echo "Installing Go..."
-    sudo apt-get install -qq -y golang bzr
-
     # set GOPATH/GOBIN and add GOBIN to path and save to .profile
     # don't set gopath in profile more than once
-    if [[ -e ~/.GOPATH_SET ]]; then
+    if [[ ! -e ~/.GOPATH_SET ]]; then
       mkdir -p #{GUEST_GOPATH}
       # ensure permissions on GOPATH are correct
       # syncing the dokku-api folder results in ~/.golang being
@@ -111,6 +102,15 @@ Vagrant.configure(2) do |config|
     export GOPATH=#{GUEST_GOPATH}
     export GOBIN=$GOPATH/bin
     export PATH=$GOBIN:$PATH
+
+    # don't reinstall
+    [[ -e ~/.GO_INSTALLED ]] && exit 0
+
+    set -eo pipefail
+    export DEBIAN_FRONTEND=noninteractive
+
+    echo "Installing Go..."
+    sudo apt-get install -qq -y golang bzr
 
     # install godeb to get newer version of go
     go get gopkg.in/niemeyer/godeb.v1/cmd/godeb
@@ -129,6 +129,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision :shell, privileged:false, inline: <<-SHELL
     # install dokku-api from shared folder
     cd $GOPATH/src/github.com/nikelmwann/dokku-api
+    go get
     go install
   SHELL
 
